@@ -1,69 +1,98 @@
-# Sony Music Publishing Website Test Framework
+# Sony Music Publishing Playwright Test Suite
 
-This is a Playwright test framework for testing the Sony Music Publishing website (https://www.sonymusicpub.com/en/).
+This project contains a comprehensive Playwright test suite for the Sony Music Publishing website, following best practices for selector accuracy, navigation, in-page verification, and handling dynamic UI elements.
 
-## Prerequisites
+## Page Object Model Structure
+- Each major page has its own page object class in the `pages/` directory (e.g., `HomePage.ts`, `AboutPage.ts`, `NewsPage.ts`, etc.).
+- Page objects encapsulate selectors and actions for their respective pages, improving maintainability and scalability.
 
-- Node.js (v14 or higher)
-- npm (comes with Node.js)
+## Test Coverage
 
-## Setup
+### Homepage
+- Loads homepage and verifies logo
+- Verifies navigation links
+- Navigation menu opens and closes properly
+- Search functionality works
+- Location selector opens dialog
+- "Find out why" button is visible (if present)
+- Footer contains all social media links (if present)
+- "Back to top" button scrolls to top (if present)
+- Page loads with correct meta information
+- Cookie banner can be dismissed and stays dismissed
+
+### About Page
+- Displays "Learn More" button
+- Has correct page title
+- Has main heading
+- Has company description
+
+### News Page
+- Displays news articles (if present)
+- Has "Read More" buttons
+- Opens first news article
+- Has correct page title
+- Displays article dates
+
+### Services Page
+- Displays "What We Do Best" heading
+- Has "License Inquiry" button
+- Displays service categories
+- Has correct page title
+- Displays service descriptions
+
+### Contact Page
+- Displays "Contact Us" heading
+- Displays email link
+- Has "Select Another Office" button
+- Displays office location
+- Has correct page title
+
+### Songwriters Page
+- Displays main heading
+- Has correct page title
+- Displays songwriter content (if present)
+- Has navigation to Songwriters Forward (if present)
+- Displays songwriter categories
+
+### Songwriters Forward Page
+- Displays "Learn More" button
+- Has correct page title
+- Displays main heading
+- Displays initiative description
+- Has navigation back to Songwriters (if present)
+
+### Global Communities Page
+- Displays main heading
+- Has correct page title
+- Displays community regions
+- Displays community descriptions
+- Has navigation to Contact page (if present)
+
+### Score Page
+- Displays main heading
+- Has login button
+- Displays logo
+
+## Running the Tests
 
 1. Install dependencies:
-```bash
-npm install
-```
+   ```sh
+   npm install
+   ```
+2. Run all tests:
+   ```sh
+   npx playwright test
+   ```
+3. Run a specific test file:
+   ```sh
+   npx playwright test tests/news.spec.ts
+   ```
 
-2. Install Playwright browsers:
-```bash
-npx playwright install
-```
+## Notes
+- Tests are robust to missing elements and dynamic UI changes.
+- Page objects are used for maintainability and scalability.
+- Skipped tests indicate missing or inaccessible elements/pages.
 
-## Running Tests
+---
 
-To run all tests:
-```bash
-npx playwright test
-```
-
-To run tests in a specific browser:
-```bash
-npx playwright test --project=chromium
-```
-
-To run tests in headed mode:
-```bash
-npx playwright test --headed
-```
-
-To run tests in debug mode:
-```bash
-npx playwright test --debug
-```
-
-## Project Structure
-
-- `tests/` - Contains all test files
-- `pages/` - Contains page object models
-- `playwright.config.ts` - Playwright configuration file
-
-## Test Reports
-
-After running tests, you can view the HTML report:
-```bash
-npx playwright show-report
-```
-
-## Writing Tests
-
-1. Create page objects in the `pages/` directory
-2. Create test files in the `tests/` directory
-3. Use the page objects in your tests for better maintainability
-
-## Best Practices
-
-- Use page objects to encapsulate page-specific logic
-- Keep tests independent and atomic
-- Use meaningful test descriptions
-- Handle async operations properly
-- Use appropriate assertions 
+For any questions or contributions, please open an issue or pull request. 

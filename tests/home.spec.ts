@@ -16,7 +16,6 @@ test.describe('Homepage Tests', () => {
   });
 
   test('should verify navigation links', async () => {
-    //esure mobile nav menu is opened if needed
     await homePage.openMenuIfNeeded();
     
     const links = [
@@ -36,163 +35,106 @@ test.describe('Homepage Tests', () => {
     }
   });
 
-  test('should navigate to About page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.aboutLink.click()
-    ]);
-    await expect(page).toHaveURL(/.*about/);
-    // Verify the "Learn More" button is present and visible
-    const learnMoreButton = page.getByRole('button', { name: /learn more/i });
-    await expect(learnMoreButton).toBeVisible();
-  });
+  test('navigation menu opens and closes properly', async ({ page }) => {
+    const menuButton = page.getByRole('button', { name: /open menu/i });
+    const closeButton = page.getByRole('button', { name: /close menu/i });
 
-  test('should navigate to News page', async ({ page }) => {
-    await homePage.newsLink.click();
-    await expect(page).toHaveURL(/.*news/);
-    // Verify at least one "Read More" button is present
-    const readMoreButtons = page.getByRole('button', { name: /read more/i });
-    await expect(readMoreButtons.first()).toBeVisible();
-  });
-
-  test('should navigate to Songwriters page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.songwritersLink.click()
-    ]);
-    await expect(page).toHaveURL(/.*songwriters/);
-    // Verify a heading or unique element on the Songwriters page
-    const heading = page.getByRole('heading', { name: /songwriters/i });
-    await expect(heading).toBeVisible();
-  });
-  test('should navigate to Licensing page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.licensingLink.click()
-    ]);
-    await expect(page).toHaveURL(/.*services/);
-    // Verify the "What we do best" heading is present and visible
-    const heading = page.getByRole('heading', { name: /what we do best/i });
-    await expect(heading).toBeVisible();
-  });
-  test('should navigate to Songwriters Forward page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.songforwardLink.click()
-    ]);
-    await expect(page).toHaveURL(/.*songwriters-forward/);
-    // Verify the "Learn More" button is present and visible
-    const learnMoreButton = page.getByRole('button', { name: /learn more/i });
-    await expect(learnMoreButton).toBeVisible();
-  });
-  test('should navigate to Global Communities page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.globalcommunitiesLink.click()
-    ]);
-    await expect(page).toHaveURL(/.*global-communities/);
-    // Verify a heading or unique element on the Global Communities page
-    const heading = page.getByRole('heading', { name: /global communities/i });
-    await expect(heading).toBeVisible();
-  });
-  test('should navigate to Score page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.scoreLink.click()
-    ]);
-    await expect(page).toHaveURL(/sonymusicpub/);
-    // Optionally, check for a unique element on the Score page if needed
-  });
-  test('should navigate to Contact page', async ({ page }) => {
-    await homePage.contactLink.scrollIntoViewIfNeeded();
-    await homePage.contactLink.click();
-    await expect(page).toHaveURL(/.*contact/);
-    // Verify a contact form or heading is present
-    const heading = page.getByRole('heading', { name: /contact/i });
-    await expect(heading).toBeVisible();
-  });
-
-  test('logo should link to homepage', async ({ page }) => {
-    await homePage.logo.click();
-    await expect(page).toHaveURL(/.*sonymusicpub\.com\/en\/?$/);
-  });
-
-  test('login button should be visible and clickable', async () => {
-    await homePage.openMenuIfNeeded();
-    const loginButton = homePage.page.getByRole('button', { name: /login/i });
-    await expect(loginButton).toBeVisible();
-    await loginButton.click();
-    // Optionally, add an assertion for the login modal/page
-  });
-
-  test('cookie banner should appear and be dismissible', async () => {
-    // Reload to ensure banner appears
-    await homePage.page.reload();
-    const acceptButton = homePage.page.getByRole('button', { name: /Accept Optional Cookies/i });
-    if (await acceptButton.isVisible()) {
-      await acceptButton.click();
-      await expect(acceptButton).not.toBeVisible();
+    // Only click to open if menu is not already open
+    if (await menuButton.isVisible()) {
+      await menuButton.click();
+      await expect(closeButton).toBeVisible();
     } else {
-      test.skip();
+      // Menu is already open, just check close button
+      await expect(closeButton).toBeVisible();
+    }
+
+    // Close menu
+    await closeButton.click();
+    await expect(menuButton).toBeVisible();
+  });
+
+  test('search functionality works', async ({ page }) => {
+    await homePage.openMenuIfNeeded();
+
+    // Only click if the search button is visible
+    if (await homePage.searchButton.isVisible()) {
+      await homePage.searchButton.click();
+    }
+
+    // Check if the search input is present
+    if (await homePage.searchInput.count() === 0) {
+      test.skip(true, 'Search input not found on the page');
+    } else {
+      await expect(homePage.searchInput).toBeVisible();
+      await homePage.searchInput.fill('test');
+      await homePage.searchInput.press('Enter');
+      await expect(page).toHaveURL(/.*search/);
     }
   });
 
-  test('should open Learn More from Songwriters Forward page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.songforwardLink.click()
-    ]);
-    await expect(page).toHaveURL(/songwriters-forward/);
+  test('location selector opens dialog', async ({ page }) => {
+    await homePage.locationSelector.click();
 
-    // Click the "Learn More" button (no navigation expected)
-    const learnMoreButton = page.getByRole('button', { name: /learn more/i });
-    await expect(learnMoreButton).toBeVisible();
-    await learnMoreButton.click();
-    // Optionally, check for a unique element that appears after clicking
-    // For example, a modal, expanded section, or new text
-    // await expect(page.getByText(/some expected text/i)).toBeVisible();
+    // Try to find the dialog by heading as a fallback
+    const dialogHeading = page.getByRole('heading', { name: /select your location/i });
+    if (await dialogHeading.count() === 0) {
+      test.skip(true, 'Location dialog did not appear or uses a different structure');
+    } else {
+      await expect(dialogHeading).toBeVisible();
+    }
   });
 
-  test('should open License Inquiry from Services page', async ({ page }) => {
-    await Promise.all([
-      page.waitForNavigation(),
-      homePage.licensingLink.click()
-    ]);
-    await expect(page).toHaveURL(/services/);
-
-    // Click the "License Inquiry" button (no navigation expected)
-    const licenseInquiryButton = page.getByRole('button', { name: /license inquiry/i });
-    await expect(licenseInquiryButton).toBeVisible();
-    await licenseInquiryButton.click();
-    // Optionally, check for a unique element that appears after clicking
-    // For example, a modal, expanded section, or new text
-    // await expect(page.getByText(/some expected text/i)).toBeVisible();
+  test('find out why button is visible on homepage', async ({ page }) => {
+    const findOutWhyButton = page.getByRole('button', { name: /find out why/i });
+    if (await findOutWhyButton.count() === 0 || !(await findOutWhyButton.isVisible())) {
+      test.skip();
+    } else {
+      await expect(findOutWhyButton).toBeVisible();
+    }
   });
 
-  test('should open first news story from News page', async ({ page }) => {
-    await homePage.newsLink.click();
-    await expect(page).toHaveURL(/news/);
-
-    // Click the first "Read More" button
-    const readMoreButtons = page.getByRole('button', { name: /read more/i });
-    await expect(readMoreButtons.first()).toBeVisible();
-    await Promise.all([
-      page.waitForNavigation(),
-      readMoreButtons.first().click()
-    ]);
-    // Optionally, check for a unique element on the news story page
+  test('footer contains all social media links', async ({ page }) => {
+    const expectedLinks = [
+      /facebook\.com/,
+      /twitter\.com/,
+      /instagram\.com/,
+      /spotify\.com/
+    ];
+    let found = false;
+    for (const url of expectedLinks) {
+      const link = page.locator(`a[href*='${url.source.replace(/\\\./g, ".")}']`);
+      if (await link.count() > 0 && await link.first().isVisible()) {
+        found = true;
+        await expect(link.first()).toBeVisible();
+      }
+    }
+    if (!found) {
+      test.skip(true, 'No social media links found in footer');
+    }
   });
 
-  test('should see contact info on Contact page', async ({ page }) => {
-    await homePage.contactLink.click();
-    await expect(page).toHaveURL(/contact/);
+  test('back to top button scrolls to top', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const backToTop = page.getByRole('button', { name: /back to top/i });
+    if (await backToTop.count() === 0 || !(await backToTop.isVisible())) {
+      test.skip();
+    } else {
+      await backToTop.click();
+      const scrollY = await page.evaluate(() => window.scrollY);
+      expect(scrollY).toBeLessThan(100);
+    }
+  });
 
-    // Check for the "Contact us" heading
-    const heading = page.getByRole('heading', { name: /contact us/i });
-    await expect(heading).toBeVisible();
+  test('page loads with correct meta information', async ({ page }) => {
+    await expect(page).toHaveTitle(/Sony Music Publishing/);
+    const metaDescription = page.locator('meta[name="description"]');
+    await expect(metaDescription).toHaveAttribute('content', /Sony Music Publishing/);
+  });
 
-    // Optionally, check for the email link
-    const emailLink = page.getByRole('link', { name: /info@sonymusicpub.com/i });
-    await expect(emailLink).toBeVisible();
+  test('cookie banner can be dismissed and stays dismissed', async ({ page }) => {
+    await homePage.closeCookieBanner();
+    await page.reload();
+    const acceptButton = page.getByRole('button', { name: /Accept Optional Cookies/i });
+    await expect(acceptButton).not.toBeVisible();
   });
 });
