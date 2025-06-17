@@ -12,6 +12,8 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.53.0",
-    "@types/node": "^24.0.1"
+    "@types/node": "^24.0.1",
+    "chrome-launcher": "^1.2.0",
+    "lighthouse": "^12.6.1"
   }
 }

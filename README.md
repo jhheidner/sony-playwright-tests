@@ -73,6 +73,37 @@ This project contains a comprehensive Playwright test suite for the Sony Music P
 - Has login button
 - Displays logo
 
+## Performance Audits with Lighthouse
+
+This project includes scripts to run [Lighthouse](https://developers.google.com/web/tools/lighthouse) performance audits:
+
+- **lighthouse-audit.js**: Runs a Lighthouse performance audit on the homepage (or a specified URL) and outputs an HTML report.
+- **pw-lighthouse.js**: Uses Playwright to set up page state (e.g., login, navigation) and then runs Lighthouse against the current page, allowing you to audit authenticated or complex flows.
+
+### How to Use
+
+1. **Install dependencies:**
+   ```sh
+   npm install --save-dev lighthouse chrome-launcher playwright
+   ```
+2. **Run a basic Lighthouse audit:**
+   ```sh
+   node lighthouse-audit.js
+   # or for a specific URL
+   node lighthouse-audit.js https://www.sonymusicpub.com/en/news
+   ```
+   - This will generate `lighthouse-report.html` in your project root.
+
+3. **Run a Lighthouse audit after Playwright navigation:**
+   ```sh
+   node pw-lighthouse.js
+   ```
+   - This will generate `lighthouse-playwright-report.html` in your project root.
+   - You can customize the Playwright script to log in or navigate before running Lighthouse.
+
+4. **View the report:**
+   - Open the generated HTML file in your browser to see the full Lighthouse report and performance score.
+
 ## Running the Tests
 
 1. Install dependencies:
